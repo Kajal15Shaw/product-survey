@@ -5,23 +5,17 @@ const passport = require('passport');
 const bodyParser = require('body-parser');
 const keys = require('./config/keys');
 require('./models/User');
+require('./models/Survey');
 require('./services/passport');
 
-console.log('Keys:', keys); // Add in index.js or passport.js
+//console.log('Keys:', keys); // Add in index.js or passport.js
 
 console.log('Connected to MongoDB URI:', keys.mongoURI);
 
-
-mongoose.connect(keys.mongoURI);
-
-mongoose.connection.on('connected', () => {
-    console.log('✅ Connected to MongoDB');
-});
-
-mongoose.connection.on('error', (err) => {
-    console.error('❌ MongoDB connection error:', err);
-});
-
+mongoose.Promise = global.Promise;
+mongoose.connect(keys.mongoURI)
+.then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('MongoDB connection failed:', err));
 
 const app = express();
 
@@ -37,6 +31,7 @@ app.use(passport.session());
 
 require('./routes/authRoutes')(app);
 require('./routes/billingRoutes')(app);
+require('./routes/surveyRoutes')(app);
 
 if (process.env.NODE_ENV === 'production') {
     // express will serve up production assets like out main.js file or main.css file.
